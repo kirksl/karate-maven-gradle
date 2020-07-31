@@ -1,0 +1,131 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.22.RELEASE'
+        scalaVersion = '2.12.8'
+        karateVersion = '0.9.6.RC4'
+        gatlingVersion = '3.0.2'
+        cucumberVersion = '3.8.0'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+    
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'jacoco'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+mainClassName = "org.company.OrderApplication"
+group = group
+version = version
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    baseName = artifactId
+    version = version
+}
+
+configurations {
+    gatling
+    testOutput
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    implementation("org.scala-lang:scala-library:${scalaVersion}")
+    implementation("ch.qos.logback:logback-core:1.2.3")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("ch.qos.logback:logback-access:1.2.3")
+    implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
+    implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.8.7")
+    implementation("net.logstash.logback:logstash-logback-encoder:4.9")
+    implementation("org.slf4j:slf4j-api:1.7.18")
+
+    testImplementation("junit:junit")
+    testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
+    testImplementation("com.intuit.karate:karate-apache:${karateVersion}")
+    testImplementation("com.intuit.karate:karate-mock-servlet:${karateVersion}")
+    testImplementation("com.intuit.karate:karate-junit4:${karateVersion}")
+    testImplementation("com.intuit.karate:karate-gatling:${karateVersion}")
+    testImplementation("net.masterthought:cucumber-reporting:${cucumberVersion}")
+
+    testOutput sourceSets.test.output
+
+    gatling("org.scala-lang:scala-library:${scalaVersion}")
+    gatling("io.gatling:gatling-app:${gatlingVersion}")
+    gatling("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}")
+    gatling("com.intuit.karate:karate-gatling:${karateVersion}")
+}
+
+bootRun {
+    systemProperties = System.properties as Map<String, ?>
+}
+
+sourceSets {
+    test {
+        resources {
+            srcDirs = ['src/test/resources', 'src/test/java', 'src/test/scala']
+
+        }
+    }
+}
+
+test {
+    if(!project.gradle.startParameter.taskNames.contains('gatlingRun')) {
+        gradle.startParameter.excludedTaskNames << ':compileTestScala'
+    }
+
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = "full"
+        events "passed", "skipped", "failed"
+    }
+
+    systemProperties = System.properties
+    systemProperty "karate.options", System.properties.getProperty("karate.options")
+    systemProperty "karate.env", System.properties.getProperty("karate.env")
+
+    outputs.upToDateWhen { false }
+
+    finalizedBy jacocoTestReport
+}
+
+task gatlingRun(type: JavaExec) {
+    dependsOn testClasses
+
+    description = 'Run Gatling Tests'
+
+    new File("${buildDir}/reports/gatling").mkdirs()
+
+    classpath = sourceSets.test.runtimeClasspath
+
+    main = "io.gatling.app.Gatling"
+    args = [
+        '-s', "${System.properties.getProperty('simulation')}",
+        '-rf', "${buildDir}/reports/gatling"
+    ]
+
+    systemProperties System.properties
+}
+
+task karateExecute(type: JavaExec) {
+      classpath = sourceSets.test.runtimeClasspath
+      main = System.properties.getProperty('mainClass')
+}

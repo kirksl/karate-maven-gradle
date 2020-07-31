@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+ 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
+        </encoder>
+    </appender>
+  
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>build/karate.log</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <charset>UTF-8</charset>
+            <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
+                <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
+                <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter"/>
+                <appendLineSeparator>true</appendLineSeparator>
+            </layout>
+        </encoder>
+    </appender>    
+   
+    <logger name="com.intuit.karate" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
+    <logger name="org.apache.http.wire" level="DEBUG">
+        <appender-ref ref="FILE"/>
+    </logger>
+   
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+  
+</configuration>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <jmxConfigurator/>
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%1.14X{principal:-}]) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+    <springProperty scope="context" name="LOGSTASH" source="logstash.servers"/>
+    <springProperty scope="context" name="LOG_TYPE" source="logstash.type"/>
+    <springProperty scope="context" name="APP_NAME" source="info.app.name"/>
+    <springProperty scope="context" name="APP_ID" source="api.source.source-id"/>
+    <springProperty scope="context" name="APP_ENV" source="api-env"/>
+
+    <springProfile name="kube">
+        <appender name="STASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <keepAliveDuration>5 minutes</keepAliveDuration>
+            <reconnectionDelay>10 second</reconnectionDelay>
+            <waitStrategyType>sleeping</waitStrategyType>
+            <ringBufferSize>16384</ringBufferSize>
+            <destination>${LOGSTASH}</destination>
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <mdc/> <!-- MDC variables on the Thread will be written as JSON fields-->
+                    <context/> <!--Outputs entries from logback's context -->
+                    <logLevel/>
+                    <loggerName/>
+
+                    <pattern>
+                        <pattern>
+                            {
+                            "APP_ID": "${APP_ID}",
+                            "TYPE": "${LOG_TYPE}",
+                            "ENVIRONMENT": "${APP_ENV}"
+                            }
+                        </pattern>
+                    </pattern>
+
+                    <threadName/>
+                    <message/>
+
+                    <logstashMarkers/> <!-- Useful so we can add extra information for specific log lines as Markers-->
+                    <arguments/> <!--or through StructuredArguments-->
+
+                    <stackTrace>
+                        <fieldName>stackTrace</fieldName>
+                        <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                            <exclude>net\.sf\.cglib\..*</exclude>
+                            <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                            <rootCauseFirst>true</rootCauseFirst>
+                        </throwableConverter>
+                    </stackTrace>
+                </providers>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <root>
+        <springProfile name="kube">
+            <appender-ref ref="STASH"/>
+        </springProfile>
+    </root>
+</configuration>
