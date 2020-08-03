@@ -19,9 +19,9 @@
 		<java.version>1.8</java.version>
 		<scala.version>2.12.8</scala.version>
 		<karate.version>0.9.6.RC4</karate.version>
-		<jacoco.plugin.version>0.7.9</jacoco.plugin.version>
+		<jacoco.plugin.version>0.8.4</jacoco.plugin.version>
 		<gatling.plugin.version>3.0.2</gatling.plugin.version>
-		<maven.surefire.version>2.18.1</maven.surefire.version>
+		<maven.surefire.version>2.22.2</maven.surefire.version>
 		<spring.boot.version>1.5.22.RELEASE</spring.boot.version>
 		<cucumber.reporting.version>3.8.0</cucumber.reporting.version>
 	</properties>
@@ -118,7 +118,7 @@
 		  </dependency>
 		  <dependency>
 			<groupId>com.intuit.karate</groupId>
-			<artifactId>karate-junit4</artifactId>
+			<artifactId>karate-junit5</artifactId>
 			<version>${karate.version}</version>
 			<scope>test</scope>
 		  </dependency>

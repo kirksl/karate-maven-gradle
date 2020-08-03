@@ -33,8 +33,8 @@ mainClassName = "org.company.OrderApplication"
 group = group
 version = version
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 jar {
     baseName = artifactId
@@ -62,7 +62,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
     testImplementation("com.intuit.karate:karate-apache:${karateVersion}")
     testImplementation("com.intuit.karate:karate-mock-servlet:${karateVersion}")
-    testImplementation("com.intuit.karate:karate-junit4:${karateVersion}")
+    testImplementation("com.intuit.karate:karate-junit5:${karateVersion}")
     testImplementation("com.intuit.karate:karate-gatling:${karateVersion}")
     testImplementation("net.masterthought:cucumber-reporting:${cucumberVersion}")
 
@@ -91,6 +91,8 @@ test {
     if(!project.gradle.startParameter.taskNames.contains('gatlingRun')) {
         gradle.startParameter.excludedTaskNames << ':compileTestScala'
     }
+
+    useJUnitPlatform()
 
     testLogging {
         showStandardStreams = true
@@ -129,3 +131,6 @@ task karateExecute(type: JavaExec) {
       classpath = sourceSets.test.runtimeClasspath
       main = System.properties.getProperty('mainClass')
 }
+
+compileScala.targetCompatibility = 1.8
+ScalaCompileOptions.metaClass.useAnt = false

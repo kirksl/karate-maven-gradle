@@ -2,7 +2,7 @@
 The purpose of this project is to provide a reusable template showcasing how to execute Karate and Gatling utilizing both Maven and Gradle build systems.  Additionally how to execute across varying environments is demonstrated.  Eg.  In 'dev' we run without a web server, use mocks and obtain code coverage.  In 'stg' or staging we run without mocks and use a live web server.
 
 ## Setup
-Install Java (tested with Java SE Runtime Environment build 1.8.0_201-b09)
+Install Java (tested with Java(TM) SE Runtime Environment 18.9 (build 11.0.8+10-LTS))
 
 ## Execution
 
