@@ -2,7 +2,7 @@ buildscript {
     ext {
         springBootVersion = '1.5.22.RELEASE'
         scalaVersion = '2.12.8'
-        karateVersion = '0.9.6.RC4'
+        karateVersion = '0.9.6'
         gatlingVersion = '3.0.2'
         cucumberVersion = '3.8.0'
     }
