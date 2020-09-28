@@ -34,6 +34,9 @@ gradlew gatlingRun -Dperf=load -Dsimulation=org.company.Order -Dkarate.env=stg
 gradlew gatlingRun -Dperf=stress -Dsimulation=org.company.Order -Dkarate.env=stg
 gradlew gatlingRun -Dperf=soak -Dsimulation=org.company.Order -Dkarate.env=stg
 gradlew gatlingRun -Dperf=spike -Dsimulation=org.company.Order -Dkarate.env=stg
+
+# optional if gatling fails to create html report from simulation.log
+gradlew gatlingReport -DsimulationFolder=<folder path to **/gatling/[simulationFileName-YYYYMMDDHHMMSSmmm]>
 ```
 
 ## View Reports

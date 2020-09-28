@@ -4,7 +4,7 @@ buildscript {
         scalaVersion = '2.12.8'
         karateVersion = '0.9.6'
         gatlingVersion = '3.0.2'
-        cucumberVersion = '3.8.0'
+        cucumberVersion = '5.3.0'
     }
 
     repositories {
@@ -124,6 +124,21 @@ task gatlingRun(type: JavaExec) {
         '-rf', "${buildDir}/reports/gatling"
     ]
 
+    systemProperties System.properties
+}
+
+task gatlingReport(type: JavaExec) {
+    dependsOn testClasses
+
+    description = 'Run Gatling Report'
+
+    classpath = sourceSets.test.runtimeClasspath
+
+    main = "io.gatling.app.Gatling"
+    args = [
+        '-ro', "${System.properties.getProperty('simulationFolder')}"
+    ]
+    
     systemProperties System.properties
 }
 
