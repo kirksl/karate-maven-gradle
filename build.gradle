@@ -4,7 +4,7 @@ buildscript {
         scalaVersion = '2.12.8'
         karateVersion = '0.9.6'
         gatlingVersion = '3.0.2'
-        cucumberVersion = '5.3.0'
+        cucumberVersion = '4.11.2'
     }
 
     repositories {
