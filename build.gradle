@@ -43,7 +43,6 @@ jar {
 
 configurations {
     gatling
-    testOutput
 }
 
 dependencies {
@@ -65,8 +64,6 @@ dependencies {
     testImplementation("com.intuit.karate:karate-junit5:${karateVersion}")
     testImplementation("com.intuit.karate:karate-gatling:${karateVersion}")
     testImplementation("net.masterthought:cucumber-reporting:${cucumberVersion}")
-
-    testOutput sourceSets.test.output
 
     gatling("org.scala-lang:scala-library:${scalaVersion}")
     gatling("io.gatling:gatling-app:${gatlingVersion}")

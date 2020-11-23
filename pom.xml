@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.5.22.RELEASE</version>
-		<relativePath/>
-	</parent>
 
 	<groupId>org.company</groupId>
 	<artifactId>karate-maven-gradle</artifactId>
@@ -24,7 +18,23 @@
 		<maven.surefire.version>2.22.2</maven.surefire.version>
 		<spring.boot.version>1.5.22.RELEASE</spring.boot.version>
 		<cucumber.reporting.version>4.11.2</cucumber.reporting.version>
+		<maven.compiler.version>3.6.0</maven.compiler.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+		   <dependency>
+			   <groupId>org.springframework.boot</groupId>
+			   <artifactId>spring-boot-dependencies</artifactId>
+			   <version>${spring.boot.version}</version>
+			   <type>pom</type>
+			   <scope>import</scope>
+		   </dependency>
+	   </dependencies>
+   </dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -102,6 +112,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -149,7 +160,19 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <compilerArgument>-Werror</compilerArgument>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
