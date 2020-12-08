@@ -18,8 +18,10 @@ buildscript {
 }
 
 repositories {
+    jcenter()
     mavenLocal()
     mavenCentral()
+    maven { url "https://dl.bintray.com/epam/reportportal" }
 }
 
 apply plugin: 'java'
@@ -47,6 +49,7 @@ configurations {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+    implementation("com.epam.reportportal:commons-model:5.0.0")
     implementation("org.scala-lang:scala-library:${scalaVersion}")
     implementation("ch.qos.logback:logback-core:1.2.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
@@ -59,6 +62,7 @@ dependencies {
 
     testImplementation("junit:junit")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
+    testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
     testImplementation("com.intuit.karate:karate-apache:${karateVersion}")
     testImplementation("com.intuit.karate:karate-mock-servlet:${karateVersion}")
     testImplementation("com.intuit.karate:karate-junit5:${karateVersion}")

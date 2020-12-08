@@ -1,5 +1,3 @@
-package org.company;
-
 import com.intuit.karate.Results;
 import com.intuit.karate.Runner;
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,12 +10,15 @@ import net.masterthought.cucumber.Configuration;
 import net.masterthought.cucumber.ReportBuilder;
 import org.apache.commons.io.FileUtils;
 
-class OrderRunner
+class KarateRunner
 {
     @Test
     void testParallel()
     {
-        Results results = Runner.path("classpath:org/company").tags("~@ignore").parallel(1);
+        Results results = Runner.path("classpath:org/company")
+            .tags("~@ignore")
+            //.hook(new KarateHook())
+            .parallel(1);
 
         generateReport(results.getReportDir());
 

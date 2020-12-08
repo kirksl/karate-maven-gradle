@@ -41,6 +41,14 @@ gradlew gatlingReport -DsimulationFolder=<folder path to **/gatling/[simulationF
 
 ## View Reports
 ```bash
+# report portal
+# this project was last tested with report portal version 5.3.3
+#
+# to enable:
+# - install report portal from https://reportportal.io/
+# - update /src/test/resources/reportportal.properties
+# - open /src/test/java/KarateRunner.java and uncomment: //.hook(new KarateHook())
+
 # karate report showing feature/scenario/step detail
 **/cucumber-html-reports/overview-features.html
 
