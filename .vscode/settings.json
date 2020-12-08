@@ -1,3 +1,3 @@
 {
-    "karateRunner.karateRunner.default": "OrderRunner"
+    "karateRunner.karateRunner.default": "KarateRunner"
 }

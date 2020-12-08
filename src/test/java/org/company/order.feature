@@ -17,4 +17,10 @@ Feature: order
         Given path '/order'
         When method get
         Then status 200
+
+    @test=order4
+    Scenario: order 4
+        Given path '/order'
+        When method get
+        Then status 201
     

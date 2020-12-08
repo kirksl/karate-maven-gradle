@@ -24,6 +24,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-epam-reportportal</id>
+            <name>bintray</name>
+            <url>http://dl.bintray.com/epam/reportportal</url>
+        </repository>
+    </repositories>
+
 	<dependencyManagement>
 		<dependencies>
 		   <dependency>
@@ -37,6 +48,12 @@
    </dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.epam.reportportal</groupId>
+			<artifactId>commons-model</artifactId>
+			<version>5.0.0</version>
+			<scope>compile</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
@@ -116,6 +133,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.epam.reportportal</groupId>
+			<artifactId>logger-java-logback</artifactId>
+			<version>5.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.intuit.karate</groupId>
 			<artifactId>karate-apache</artifactId>
 			<version>${karate.version}</version>
@@ -154,6 +177,9 @@
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
 			</testResource>
 	  	</testResources>
 		<plugins>
