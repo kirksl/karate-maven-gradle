@@ -10,10 +10,13 @@ import com.intuit.karate.core.ExecutionContext;
 import com.intuit.karate.core.Step;
 import com.intuit.karate.core.StepResult;
 import com.intuit.karate.core.PerfEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KarateHook implements ExecutionHook
 {
     private RPReporter rpReporter;
+    private static final Logger logger = LoggerFactory.getLogger(KarateHook.class);
 
     public KarateHook()
     {
@@ -34,26 +37,55 @@ public class KarateHook implements ExecutionHook
     @Override
     public boolean beforeFeature(Feature feature, ExecutionContext context)
     {
-        this.rpReporter.startFeature(context.result);
+        try
+        {
+            this.rpReporter.startFeature(feature);
+        }
+        catch (Exception e)
+        {
+            logger.error("beforeFeature exception: {}", e.getMessage(), e);
+        }
+    
         return true;
     }
 
     @Override
     public void afterFeature(FeatureResult result, ExecutionContext context)
     {
-        this.rpReporter.finishFeature(context.result);
+        try
+        {
+            this.rpReporter.finishFeature(result);
+        }
+        catch (Exception e)
+        {
+            logger.error("afterFeature exception: {}", e.getMessage(), e);
+        }
     }    
 
     @Override
     public void beforeAll(Results results)
     {
-        this.rpReporter.startLaunch();
+        try
+        {
+            this.rpReporter.startLaunch();
+        }
+        catch (Exception e)
+        {
+            logger.error("beforeAll exception: {}", e.getMessage(), e);
+        }
     }
 
     @Override
     public void afterAll(Results results)
     {
-        this.rpReporter.finishLaunch();
+        try
+        {
+            this.rpReporter.finishLaunch(results);
+        }
+        catch (Exception e)
+        {
+            logger.error("afterAll exception: {}", e.getMessage(), e);
+        }
     }        
 
     @Override

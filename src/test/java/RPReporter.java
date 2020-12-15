@@ -7,175 +7,272 @@ import com.epam.ta.reportportal.ws.model.FinishTestItemRQ;
 import com.epam.ta.reportportal.ws.model.StartTestItemRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
-import com.intuit.karate.core.FeatureResult;
-import com.intuit.karate.core.ScenarioResult;
-import com.intuit.karate.core.Feature;
+import com.intuit.karate.Results;
+import com.intuit.karate.core.*;
 import io.reactivex.Maybe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rp.com.google.common.base.Supplier;
 import rp.com.google.common.base.Suppliers;
 import rp.com.google.common.base.Strings;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 import static rp.com.google.common.base.Strings.isNullOrEmpty;
 
 class RPReporter
 {
     private static final Logger logger = LoggerFactory.getLogger(RPReporter.class);
+    private final Map<String, Date> featureStartDate = Collections.synchronizedMap(new HashMap<String, Date>());
+    private Supplier<Launch> launch;
     private static final String INFO_LEVEL = "INFO";
     private static final String ERROR_LEVEL = "ERROR";
+    private static final String TEST_TYPE = "TEST";
+    private static final String STEP_TYPE = "STEP";
     private static final String PASSED = "passed";
     private static final String FAILED = "failed";
-    private Supplier<Launch> launch;
-    private ConcurrentHashMap<String, Maybe<String>> featureIdMapping;
-    private Maybe<String> scenarioId;
-
+    private static final String SKIPPED = "skipped";
+    private static final String SKIPPED_ISSUE_KEY = "skippedIssue";
+    
     RPReporter()
     {
-        featureIdMapping = new ConcurrentHashMap<>();
-
-        this.launch = Suppliers.memoize(() -> {
-            final ReportPortal reportPortal = ReportPortal.builder().build();
-            StartLaunchRQ rq = startLaunch(reportPortal.getParameters());
-            rq.setStartTime(Calendar.getInstance().getTime());
-            return reportPortal.newLaunch(rq);
-        });
     }
 
     void startLaunch()
     {
+        this.launch = Suppliers.memoize(new Supplier<Launch>()
+        {
+            // should not be lazy
+            private final Date startTime = getTime();
+            
+            @Override
+            public Launch get()
+            {
+                final ReportPortal reportPortal = ReportPortal.builder().build();
+                ListenerParameters parameters = reportPortal.getParameters();
+
+                StartLaunchRQ startLaunchRq = new StartLaunchRQ();
+                startLaunchRq.setName(parameters.getLaunchName());
+                startLaunchRq.setStartTime(startTime);
+                startLaunchRq.setMode(parameters.getLaunchRunningMode());
+                startLaunchRq.setAttributes(parameters.getAttributes());
+
+                if (!isNullOrEmpty(parameters.getDescription()))
+                {
+                    startLaunchRq.setDescription(parameters.getDescription());
+                }
+
+                startLaunchRq.setRerun(parameters.isRerun());
+
+                if (!isNullOrEmpty(parameters.getRerunOf()))
+                {
+                    startLaunchRq.setRerunOf(parameters.getRerunOf());
+                }
+
+                if (parameters.getSkippedAnIssue() != null)
+                {
+                    ItemAttributesRQ skippedIssueAttribute = new ItemAttributesRQ();
+                    skippedIssueAttribute.setKey(SKIPPED_ISSUE_KEY);
+                    skippedIssueAttribute.setValue(parameters.getSkippedAnIssue().toString());
+                    skippedIssueAttribute.setSystem(true);
+                    startLaunchRq.getAttributes().add(skippedIssueAttribute);
+                }
+
+                return reportPortal.newLaunch(startLaunchRq);
+            }
+        });
+
         this.launch.get().start();
     }
 
-    void finishLaunch()
+    void finishLaunch(Results results)
     {
-        FinishExecutionRQ rq = new FinishExecutionRQ();
-        rq.setEndTime(Calendar.getInstance().getTime());
+        FinishExecutionRQ finishLaunchRq = new FinishExecutionRQ();
+        finishLaunchRq.setEndTime(getTime());
+        finishLaunchRq.setStatus(getLaunchStatus(results));
 
-        ListenerParameters parameters = launch.get().getParameters();
-        logger.info("LAUNCH URL: {}/ui/#{}/launches/all/{}", parameters.getBaseUrl(), parameters.getProjectName(),
-                System.getProperty("rp.launch.id"));
-
-        launch.get().finish(rq);
+        launch.get().finish(finishLaunchRq);
     }
 
-    private StartLaunchRQ startLaunch(ListenerParameters parameters)
+    synchronized void startFeature(Feature feature)
     {
-        StartLaunchRQ rq = new StartLaunchRQ();
-        rq.setName(parameters.getLaunchName());
-        rq.setStartTime(Calendar.getInstance().getTime());
-        rq.setMode(parameters.getLaunchRunningMode());
- 
-        if (!isNullOrEmpty(parameters.getDescription()))
-        {
-            rq.setDescription(parameters.getDescription());
-        }
- 
-        return rq;
-    }
-
-    synchronized void startFeature(FeatureResult featureResult)
-    {
-        Feature feature = featureResult.getFeature();
-        StartTestItemRQ rq = new StartTestItemRQ();
-        rq.setName(!Strings.isNullOrEmpty(feature.getName()) ? feature.getName() : featureResult.getDisplayUri());
-        rq.setStartTime(Calendar.getInstance().getTime());
-        rq.setType("TEST");
-        rq.setDescription(featureResult.getDisplayUri());
-
-        if (feature.getTags() != null && !feature.getTags().isEmpty())
-        {
-            Set<ItemAttributesRQ> attributes = new HashSet<ItemAttributesRQ>();
-            feature.getTags().forEach((tag) -> {
-                attributes.add(new ItemAttributesRQ(null, tag.getName()));
-            });
-
-            rq.setAttributes(attributes);
-        }
-
-        Maybe<String> featureId = launch.get().startTestItem(rq);
-        featureIdMapping.put(featureResult.getCallName(), featureId);
+        featureStartDate.put(getUri(feature), getTime());
     }
 
     synchronized void finishFeature(FeatureResult featureResult)
     {
-        if (!featureIdMapping.containsKey(featureResult.getCallName()))
+        Feature feature = featureResult.getFeature();
+        String featureUri = getUri(feature);
+
+        StartTestItemRQ startFeatureRq = new StartTestItemRQ();
+        startFeatureRq.setName(!Strings.isNullOrEmpty(feature.getName()) ? feature.getName() : featureResult.getDisplayUri());
+        startFeatureRq.setType(TEST_TYPE);
+        startFeatureRq.setDescription(featureResult.getDisplayUri());
+
+        if (featureStartDate.containsKey(featureUri))
         {
-            logger.error("BUG: Trying to finish unspecified feature.");
+            startFeatureRq.setStartTime(featureStartDate.get(featureUri));
         }
+        else
+        {
+            startFeatureRq.setStartTime(getTime());
+        }
+
+        if (feature.getTags() != null && !feature.getTags().isEmpty())
+        {
+            List<Tag> tags = feature.getTags();
+            Set<ItemAttributesRQ> attributes = new HashSet<ItemAttributesRQ>();
+
+            tags.forEach((tag) ->
+            {
+                attributes.add(new ItemAttributesRQ(null, tag.getName()));
+            });
+
+            startFeatureRq.setAttributes(attributes);
+        }
+
+        Maybe<String> featureId = launch.get().startTestItem(null, startFeatureRq);
 
         for (ScenarioResult scenarioResult : featureResult.getScenarioResults())
         {
-            startScenario(scenarioResult, featureResult);
-            List<Map<String, Map>> stepResultsToMap = (List<Map<String, Map>>) scenarioResult.toMap().get("steps");
-            for (Map<String, Map> step : stepResultsToMap)
+            StartTestItemRQ startScenarioRq = new StartTestItemRQ();
+            startScenarioRq.setDescription(scenarioResult.getScenario().getDescription());
+            startScenarioRq.setName(scenarioResult.getScenario().getName());
+
+            if (featureStartDate.containsKey(featureUri))
             {
-                Map stepResult = step.get("result");
-                String logLevel = PASSED.equals(stepResult.get("status")) ? INFO_LEVEL : ERROR_LEVEL;
-                if (step.get("doc_string") != null)
+                startScenarioRq.setStartTime(new Date(scenarioResult.getStartTime() + featureStartDate.get(featureUri).getTime()));
+            }
+            else
+            {
+                startScenarioRq.setStartTime(getTime());
+            }
+
+            startScenarioRq.setType(STEP_TYPE);
+
+            Maybe<String> scenarioId = launch.get().startTestItem(featureId, startScenarioRq);
+
+            if (getScenarioStatus(scenarioResult) != PASSED)
+            {
+                List<Map<String, Map>> stepResultsToMap = (List<Map<String, Map>>) scenarioResult.toMap().get("steps");
+                
+                for (Map<String, Map> step : stepResultsToMap)
                 {
-                    sendLog("STEP: " + step.get("name") +
-                            "\n-----------------DOC_STRING-----------------\n" + step.get("doc_string"), logLevel);
-                }
-                else
-                {
-                    sendLog("STEP: " + step.get("name"), logLevel);
+                    Map stepResult = step.get("result");
+                    String logLevel = PASSED.equals(stepResult.get("status")) ? INFO_LEVEL : ERROR_LEVEL;
+                    if (step.get("doc_string") != null)
+                    {
+                        sendLog("STEP: " + step.get("name") +
+                                "\n-----------------DOC_STRING-----------------\n" + step.get("doc_string"), logLevel, scenarioId.blockingGet());
+                    }
+                    else
+                    {
+                        sendLog("STEP: " + step.get("name"), logLevel, scenarioId.blockingGet());
+                    }
                 }
             }
 
-            finishScenario(scenarioResult);
+            FinishTestItemRQ finishScenarioRq = new FinishTestItemRQ();
+
+            if (featureStartDate.containsKey(featureUri))
+            {
+                finishScenarioRq.setEndTime(new Date(scenarioResult.getEndTime() + featureStartDate.get(featureUri).getTime()));
+            }
+            else
+            {
+                finishScenarioRq.setEndTime(getTime());
+            }
+
+            finishScenarioRq.setStatus(getScenarioStatus(scenarioResult));
+
+            launch.get().finishTestItem(scenarioId, finishScenarioRq);
         }
 
-        FinishTestItemRQ rq = new FinishTestItemRQ();
-        rq.setEndTime(Calendar.getInstance().getTime());
-        rq.setStatus(featureResult.isFailed() ? FAILED : PASSED);
+        FinishTestItemRQ finishFeatureRq = new FinishTestItemRQ();
+        finishFeatureRq.setEndTime(getTime());
+        finishFeatureRq.setStatus(getFeatureStatus(featureResult));
 
-        launch.get().finishTestItem(featureIdMapping.remove(featureResult.getCallName()), rq);
+        launch.get().finishTestItem(featureId, finishFeatureRq);
     }
 
-    private synchronized void startScenario(ScenarioResult scenarioResult, FeatureResult featureResult)
+    private String getLaunchStatus(Results results)
     {
-        StartTestItemRQ rq = new StartTestItemRQ();
-        rq.setName(scenarioResult.getScenario().getName());
-        rq.setStartTime(Calendar.getInstance().getTime());
-        rq.setType("STEP");
-        rq.setDescription(scenarioResult.getScenario().getDescription());
+        String launchStatus = SKIPPED;
 
-        scenarioId = launch.get().startTestItem(featureIdMapping.get(featureResult.getCallName()), rq);
-    }
-
-    private synchronized void finishScenario(ScenarioResult scenarioResult)
-    {
-        if (scenarioId == null)
+        if (results.getScenarioCount() > 0)
         {
-            logger.error("BUG: Trying to finish unspecified scenario.");
-            return;
+            if (results.getFailCount() > 0)
+            {
+                launchStatus = FAILED;
+            }
+            else
+            {
+                launchStatus = PASSED;
+            }
         }
 
-        FinishTestItemRQ rq = new FinishTestItemRQ();
-        rq.setEndTime(Calendar.getInstance().getTime());
-        rq.setStatus(scenarioResult.getFailureMessageForDisplay() == null ? PASSED : FAILED);
-        launch.get().finishTestItem(scenarioId, rq);
-
-        scenarioId = null;
+        return launchStatus;
     }
 
-    private void sendLog(final String message, final String level)
+    private String getFeatureStatus(FeatureResult featureResult)
     {
-        ReportPortal.emitLog(itemId -> {
-            SaveLogRQ rq = new SaveLogRQ();
-            rq.setMessage(message);
-            //rq.setTestItemId(itemId); // rp < v5
-            //rq.setUuid(itemId);       // rp < v5
-            rq.setItemUuid(itemId);     // rp >= v5
-            rq.setLevel(level);
-            rq.setLogTime(Calendar.getInstance().getTime());
- 
-            return rq;
+        String featureStatus = SKIPPED;
+
+        if (featureResult.getScenarioCount() > 0)
+        {
+            if (featureResult.isFailed())
+            {
+                featureStatus = FAILED;
+            }
+            else
+            {
+                featureStatus = PASSED;
+            }
+        }
+
+        return featureStatus;
+    }
+
+    private String getScenarioStatus(ScenarioResult scenarioResult)
+    {
+        String scenarioStatus = SKIPPED;
+
+        if (scenarioResult.getStepResults() != null && scenarioResult.getStepResults().size() > 0)
+        {
+            if (scenarioResult.getFailedStep() != null)
+            {
+                scenarioStatus = FAILED;
+            }
+            else
+            {
+                scenarioStatus = PASSED;
+            }
+        }
+
+        return scenarioStatus;
+    }
+
+    private Date getTime()
+    {
+        return Calendar.getInstance().getTime();
+    }
+
+    private String getUri(Feature feature)
+    {
+        return feature.getResource().getPath().toString();
+    }
+
+    private void sendLog(final String message, final String level, final String itemUuid)
+    {
+        ReportPortal.emitLog(itemId ->
+        {
+            SaveLogRQ saveLogRq = new SaveLogRQ();
+            saveLogRq.setMessage(message);
+            //saveLogRq.setTestItemId(itemId); // rp < v5
+            //saveLogRq.setUuid(itemId);       // rp < v5
+            saveLogRq.setItemUuid(itemUuid);   // rp >= v5
+            saveLogRq.setLevel(level);
+            saveLogRq.setLogTime(getTime());
+
+            return saveLogRq;
         });
     }
 }
