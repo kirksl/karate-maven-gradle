@@ -29,7 +29,7 @@ class RPReporter
     private static final String STEP_TYPE = "STEP";
     private static final String PASSED = "passed";
     private static final String FAILED = "failed";
-    private static final String SKIPPED = "skipped";
+    private static final String SKIPPED = "SKIPPED";
     private static final String SKIPPED_ISSUE_KEY = "skippedIssue";
     
     RPReporter()
