@@ -1,19 +1,13 @@
-import com.intuit.karate.Results;
-import com.intuit.karate.http.HttpRequestBuilder;
-import com.intuit.karate.core.ExecutionHook;
-import com.intuit.karate.core.Feature;
-import com.intuit.karate.core.FeatureResult;
-import com.intuit.karate.core.Scenario;
-import com.intuit.karate.core.ScenarioContext;
-import com.intuit.karate.core.ScenarioResult;
-import com.intuit.karate.core.ExecutionContext;
+import com.intuit.karate.RuntimeHook;
+import com.intuit.karate.Suite;
+import com.intuit.karate.core.FeatureRuntime;
+import com.intuit.karate.core.ScenarioRuntime;
 import com.intuit.karate.core.Step;
 import com.intuit.karate.core.StepResult;
-import com.intuit.karate.core.PerfEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KarateHook implements ExecutionHook
+public class KarateHook implements RuntimeHook
 {
     private RPReporter rpReporter;
     private static final Logger logger = LoggerFactory.getLogger(KarateHook.class);
@@ -24,46 +18,46 @@ public class KarateHook implements ExecutionHook
     }
 
     @Override
-    public boolean beforeScenario(Scenario scenario, ScenarioContext context)
+    public boolean beforeScenario(ScenarioRuntime sr)
     {
         return true;
     }
 
     @Override
-    public void afterScenario(ScenarioResult result, ScenarioContext context)
+    public void afterScenario(ScenarioRuntime sr)
     {
-    }    
+    }
 
     @Override
-    public boolean beforeFeature(Feature feature, ExecutionContext context)
+    public boolean beforeFeature(FeatureRuntime fr)
     {
         try
         {
-            this.rpReporter.startFeature(feature);
+            this.rpReporter.startFeature(fr.feature);
         }
         catch (Exception e)
         {
             logger.error("beforeFeature exception: {}", e.getMessage(), e);
         }
-    
+
         return true;
     }
 
     @Override
-    public void afterFeature(FeatureResult result, ExecutionContext context)
+    public void afterFeature(FeatureRuntime fr)
     {
         try
         {
-            this.rpReporter.finishFeature(result);
+            this.rpReporter.finishFeature(fr.result);
         }
         catch (Exception e)
         {
             logger.error("afterFeature exception: {}", e.getMessage(), e);
         }
-    }    
+    }
 
     @Override
-    public void beforeAll(Results results)
+    public void beforeSuite(Suite suite)
     {
         try
         {
@@ -71,42 +65,31 @@ public class KarateHook implements ExecutionHook
         }
         catch (Exception e)
         {
-            logger.error("beforeAll exception: {}", e.getMessage(), e);
+            logger.error("beforeSuite exception: {}", e.getMessage(), e);
         }
     }
 
     @Override
-    public void afterAll(Results results)
+    public void afterSuite(Suite suite)
     {
         try
         {
-            this.rpReporter.finishLaunch(results);
+            this.rpReporter.finishLaunch(suite);
         }
         catch (Exception e)
         {
-            logger.error("afterAll exception: {}", e.getMessage(), e);
+            logger.error("afterSuite exception: {}", e.getMessage(), e);
         }
-    }        
+    }
 
     @Override
-    public boolean beforeStep(Step step, ScenarioContext context)
+    public boolean beforeStep(Step step, ScenarioRuntime sr)
     {
         return true;
     }
 
     @Override
-    public void afterStep(StepResult result, ScenarioContext context)
-    {
-    }        
-        
-    @Override
-    public String getPerfEventName(HttpRequestBuilder req, ScenarioContext context)
-    {
-        return null;
-    }    
-    
-    @Override
-    public void reportPerfEvent(PerfEvent event)
+    public void afterStep(StepResult result, ScenarioRuntime sr)
     {
     }
 }

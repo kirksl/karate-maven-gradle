@@ -65,16 +65,14 @@ dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
     testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
-    testImplementation("com.intuit.karate:karate-apache:0.9.6")
-    testImplementation("com.intuit.karate:karate-mock-servlet:0.9.6")
-    testImplementation("com.intuit.karate:karate-junit5:0.9.6")
-    testImplementation("com.intuit.karate:karate-gatling:0.9.6")
-    testImplementation("net.masterthought:cucumber-reporting:4.11.2")
+    testImplementation("com.intuit.karate:karate-mock-servlet:2.0.0")
+    testImplementation("com.intuit.karate:karate-junit5:2.0.0")
+    testImplementation("com.intuit.karate:karate-gatling:2.0.0")
 
     gatling("org.scala-lang:scala-library:2.12.8")
     gatling("io.gatling:gatling-app:3.0.2")
     gatling("io.gatling.highcharts:gatling-charts-highcharts:3.0.2")
-    gatling("com.intuit.karate:karate-gatling:0.9.6")
+    gatling("com.intuit.karate:karate-gatling:2.0.0")
 
     // Align versions of all Kotlin components, JDK8, Test Library, JUnit
     //implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

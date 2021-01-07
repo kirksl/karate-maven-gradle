@@ -2,9 +2,8 @@ buildscript {
     ext {
         springBootVersion = '1.5.22.RELEASE'
         scalaVersion = '2.12.8'
-        karateVersion = '0.9.6'
+        karateVersion = '2.0.0'
         gatlingVersion = '3.0.2'
-        cucumberVersion = '4.11.2'
     }
 
     repositories {
@@ -63,11 +62,9 @@ dependencies {
     testImplementation("junit:junit")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
     testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
-    testImplementation("com.intuit.karate:karate-apache:${karateVersion}")
     testImplementation("com.intuit.karate:karate-mock-servlet:${karateVersion}")
     testImplementation("com.intuit.karate:karate-junit5:${karateVersion}")
     testImplementation("com.intuit.karate:karate-gatling:${karateVersion}")
-    testImplementation("net.masterthought:cucumber-reporting:${cucumberVersion}")
 
     gatling("org.scala-lang:scala-library:${scalaVersion}")
     gatling("io.gatling:gatling-app:${gatlingVersion}")

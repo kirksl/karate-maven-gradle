@@ -3,6 +3,9 @@ function fn()
    var env = karate.env;
    karate.log('karate.env system property was:', env);
 
+   var scenario = karate.getScenario();
+   var isOutline = scenario.isOutline();
+
    if (!env)
    {
       env = 'dev';
@@ -15,8 +18,7 @@ function fn()
 
    if (env == 'dev')
    {
-      var Factory = Java.type('MockSpringMvcServlet');
-      karate.configure('httpClientInstance', Factory.getMock());
+      // customize
    }
    else if (env == 'stg')
    {

@@ -24,3 +24,13 @@ Feature: order
         When method get
         Then status 201
     
+    @test=order5
+    Scenario Outline: order 5
+        Given path '/order'
+        When method get
+        Then status <statusCode>
+
+    Examples:
+    | statusCode |
+    | 200        |
+    | 201        |

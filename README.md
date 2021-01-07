@@ -47,13 +47,13 @@ gradlew gatlingReport -DsimulationFolder=<folder path to **/gatling/[simulationF
 # to enable:
 # - install report portal from https://reportportal.io/
 # - update /src/test/resources/reportportal.properties
-# - open /src/test/java/KarateRunner.java and uncomment: //.hook(new KarateHook())
+# - specify jvm arg "-Drp=true" in above commands
 
 # karate report showing feature/scenario/step detail
-**/cucumber-html-reports/overview-features.html
+**/karate-reports/karate-summary.html
 
 # karate report showing execution of scenarios across threads and time
-**/surefire-reports/timeline.html
+**/karate-reports/karate-timeline.html
 
 # java code coverage report
 **/jacoco/test/html/index.html
