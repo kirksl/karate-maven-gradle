@@ -3,9 +3,6 @@ function fn()
    var env = karate.env;
    karate.log('karate.env system property was:', env);
 
-   var scenario = karate.getScenario();
-   var isOutline = scenario.isOutline();
-
    if (!env)
    {
       env = 'dev';
