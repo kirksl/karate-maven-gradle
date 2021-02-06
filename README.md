@@ -47,7 +47,7 @@ gradlew gatlingReport -DsimulationFolder=<folder path to **/gatling/[simulationF
 # to enable:
 # - install report portal from https://reportportal.io/
 # - update /src/test/resources/reportportal.properties
-# - specify jvm arg "-Drp=true" in above commands
+# - specify jvm arg "-Dreportportal=true" in above commands
 
 # karate report showing feature/scenario/step detail
 **/karate-reports/karate-summary.html

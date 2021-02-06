@@ -196,7 +196,7 @@
                     <target>${java.version}</target>
                     <compilerArgument>-Werror</compilerArgument>
                     <includes>
-                        <include>**/OrderRunner.java</include>
+                        <include>**/KarateRunner.java</include>
 					</includes>
                     <!-- pass jacoco runtime agent to JVM so we record code coverage when tests run -->
                     <argLine>${argLine}</argLine>
