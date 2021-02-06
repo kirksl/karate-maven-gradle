@@ -1,3 +1,5 @@
 {
-    "karateRunner.karateRunner.default": "KarateRunner"
+    "karateRunner.karateRunner.default": "KarateRunner",
+    "karateRunner.buildSystem.useWrapper": true,
+    "karateRunner.karateRunner.promptToSpecify": false
 }
