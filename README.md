@@ -4,6 +4,10 @@ The purpose of this project is to provide a reusable template showcasing how to 
 ## Setup
 Install Java (tested with Java(TM) SE Runtime Environment 18.9 (build 11.0.8+10-LTS))
 
+For Karate 1.0 ```git checkout master```
+
+For Karate 0.9.6 ```git checkout a770a9361396a249456a3f2d5b59ff0a8fab9481```
+
 ## Execution
 
 ### Functionally test without web server (with mock, with code coverage)
