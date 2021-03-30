@@ -11,10 +11,10 @@
 
 	<properties>
 		<java.version>1.8</java.version>
-		<scala.version>2.12.8</scala.version>
-		<karate.version>2.0.0</karate.version>
+		<scala.version>2.13.3</scala.version>
+		<karate.version>1.0.0</karate.version>
 		<jacoco.plugin.version>0.8.4</jacoco.plugin.version>
-		<gatling.plugin.version>3.0.2</gatling.plugin.version>
+		<gatling.plugin.version>3.1.1</gatling.plugin.version>
 		<maven.surefire.version>2.22.2</maven.surefire.version>
 		<spring.boot.version>1.5.22.RELEASE</spring.boot.version>
 		<maven.compiler.version>3.6.0</maven.compiler.version>

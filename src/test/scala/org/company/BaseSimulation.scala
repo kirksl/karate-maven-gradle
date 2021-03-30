@@ -11,7 +11,8 @@ import io.gatling.core.controller.inject.closed.ClosedInjectionStep
 import scala.Enumeration
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
-import scala.collection.mutable.MutableList
+import scala.collection.mutable.ArrayDeque
+import scala.language.postfixOps
 
 // testing
 // for expected load ensure operation within spec (traffic SLA, resource usage, etc)
@@ -45,7 +46,7 @@ class BaseSimulation extends Simulation {
     def perMin(rate : Double): Double = rate / 60
 
     def buildOpenModel(perf: String = System.getProperty("perf")) = {
-        var model = MutableList[OpenInjectionStep]()
+        var model = ArrayDeque[OpenInjectionStep]()
 
         Perf.withName(perf) match {
             case Perf.Load =>
@@ -63,7 +64,7 @@ class BaseSimulation extends Simulation {
     }
 
     def buildClosedModel(perf: String = System.getProperty("perf")) = {
-        var model = MutableList[ClosedInjectionStep]()
+        var model = ArrayDeque[ClosedInjectionStep]()
 
         Perf.withName(perf) match {
             case Perf.Load =>

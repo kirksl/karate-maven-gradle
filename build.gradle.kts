@@ -52,7 +52,7 @@ val gatling by configurations.creating
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:1.5.22.RELEASE")
     implementation("com.epam.reportportal:commons-model:5.0.0")
-    implementation("org.scala-lang:scala-library:2.12.8")
+    implementation("org.scala-lang:scala-library:2.13.3")
     implementation("ch.qos.logback:logback-core:1.2.3")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("ch.qos.logback:logback-access:1.2.3")
@@ -65,14 +65,14 @@ dependencies {
     testImplementation("junit:junit:4.12")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
     testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
-    testImplementation("com.intuit.karate:karate-mock-servlet:2.0.0")
-    testImplementation("com.intuit.karate:karate-junit5:2.0.0")
-    testImplementation("com.intuit.karate:karate-gatling:2.0.0")
+    testImplementation("com.intuit.karate:karate-mock-servlet:1.0.0")
+    testImplementation("com.intuit.karate:karate-junit5:1.0.0")
+    testImplementation("com.intuit.karate:karate-gatling:1.0.0")
 
-    gatling("org.scala-lang:scala-library:2.12.8")
-    gatling("io.gatling:gatling-app:3.0.2")
-    gatling("io.gatling.highcharts:gatling-charts-highcharts:3.0.2")
-    gatling("com.intuit.karate:karate-gatling:2.0.0")
+    gatling("org.scala-lang:scala-library:2.13.3")
+    gatling("io.gatling:gatling-app:3.4.0")
+    gatling("io.gatling.highcharts:gatling-charts-highcharts:3.4.0")
+    gatling("com.intuit.karate:karate-gatling:1.0.0")
 
     // Align versions of all Kotlin components, JDK8, Test Library, JUnit
     //implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
