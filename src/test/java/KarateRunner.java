@@ -1,40 +1,33 @@
+import com.intuit.karate.Constants;
 import com.intuit.karate.Results;
 import com.intuit.karate.Runner;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import net.masterthought.cucumber.Configuration;
-import net.masterthought.cucumber.ReportBuilder;
-import org.apache.commons.io.FileUtils;
 
 class KarateRunner
 {
     @Test
     void testParallel()
     {
-        Results results = Runner.path("classpath:org/company")
-            .tags("~@ignore")
-            //.hook(new KarateHook())
-            .parallel(1);
+        String env = System.getProperty(Constants.KARATE_ENV, "dev").trim();
+        Boolean rp = Boolean.parseBoolean(System.getProperty("reportportal", "false"));
 
-        generateReport(results.getReportDir());
+        Runner.Builder rb = Runner.builder();
+        rb.path("classpath:org/company");
+        rb.tags("~@ignore");
+
+        if (rp)
+        {
+            rb.hook(new KarateHook());
+        }
+
+        if (env.isEmpty() || env.toLowerCase() == "dev")
+        {
+            rb.clientFactory(MockSpringMvcServlet.getMock());
+        }
+
+        Results results = rb.parallel(1);
 
         assertEquals(0, results.getFailCount(), results.getErrorMessages());
-    }
-
-    public static void generateReport(String karateOutputPath)
-    {
-        Collection<File> jsonFiles = FileUtils.listFiles(new File(karateOutputPath), new String[] {"json"}, true);
-        List<String> jsonPaths = new ArrayList<String>(jsonFiles.size());
-
-        jsonFiles.forEach(file -> jsonPaths.add(file.getAbsolutePath()));
-
-        Configuration config = new Configuration(new File("build"), "Karate Tests");
-        ReportBuilder reportBuilder = new ReportBuilder(jsonPaths, config);
-
-        reportBuilder.generateReports();
     }
 }

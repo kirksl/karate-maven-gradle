@@ -15,8 +15,7 @@ function fn()
 
    if (env == 'dev')
    {
-      var Factory = Java.type('MockSpringMvcServlet');
-      karate.configure('httpClientInstance', Factory.getMock());
+      // customize
    }
    else if (env == 'stg')
    {

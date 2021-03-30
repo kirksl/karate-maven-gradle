@@ -7,20 +7,19 @@ import com.epam.ta.reportportal.ws.model.FinishTestItemRQ;
 import com.epam.ta.reportportal.ws.model.StartTestItemRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
-import com.intuit.karate.Results;
+import com.intuit.karate.Suite;
 import com.intuit.karate.core.*;
 import io.reactivex.Maybe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import rp.com.google.common.base.Supplier;
 import rp.com.google.common.base.Suppliers;
 import rp.com.google.common.base.Strings;
 import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import static rp.com.google.common.base.Strings.isNullOrEmpty;
 
 class RPReporter
 {
-    private static final Logger logger = LoggerFactory.getLogger(RPReporter.class);
     private final Map<String, Date> featureStartDate = Collections.synchronizedMap(new HashMap<String, Date>());
     private Supplier<Launch> launch;
     private static final String INFO_LEVEL = "INFO";
@@ -83,11 +82,11 @@ class RPReporter
         this.launch.get().start();
     }
 
-    void finishLaunch(Results results)
+    void finishLaunch(Suite suite)
     {
         FinishExecutionRQ finishLaunchRq = new FinishExecutionRQ();
         finishLaunchRq.setEndTime(getTime());
-        finishLaunchRq.setStatus(getLaunchStatus(results));
+        finishLaunchRq.setStatus(getLaunchStatus(suite));
 
         launch.get().finish(finishLaunchRq);
     }
@@ -103,9 +102,9 @@ class RPReporter
         String featureUri = getUri(feature);
 
         StartTestItemRQ startFeatureRq = new StartTestItemRQ();
-        startFeatureRq.setName(!Strings.isNullOrEmpty(feature.getName()) ? feature.getName() : featureResult.getDisplayUri());
+        startFeatureRq.setName(!Strings.isNullOrEmpty(feature.getName()) ? feature.getName() : featureUri);
         startFeatureRq.setType(TEST_TYPE);
-        startFeatureRq.setDescription(featureResult.getDisplayUri());
+        startFeatureRq.setDescription(featureUri);
 
         if (featureStartDate.containsKey(featureUri))
         {
@@ -136,23 +135,14 @@ class RPReporter
             StartTestItemRQ startScenarioRq = new StartTestItemRQ();
             startScenarioRq.setDescription(scenarioResult.getScenario().getDescription());
             startScenarioRq.setName(scenarioResult.getScenario().getName());
-
-            if (featureStartDate.containsKey(featureUri))
-            {
-                startScenarioRq.setStartTime(new Date(scenarioResult.getStartTime() + featureStartDate.get(featureUri).getTime()));
-            }
-            else
-            {
-                startScenarioRq.setStartTime(getTime());
-            }
-
+            startScenarioRq.setStartTime(new Date(scenarioResult.getStartTime()));
             startScenarioRq.setType(STEP_TYPE);
 
             Maybe<String> scenarioId = launch.get().startTestItem(featureId, startScenarioRq);
 
             if (getScenarioStatus(scenarioResult) != PASSED)
             {
-                List<Map<String, Map>> stepResultsToMap = (List<Map<String, Map>>) scenarioResult.toMap().get("steps");
+                List<Map<String, Map>> stepResultsToMap = (List<Map<String, Map>>) scenarioResult.toCucumberJson().get("steps");
                 
                 for (Map<String, Map> step : stepResultsToMap)
                 {
@@ -171,16 +161,7 @@ class RPReporter
             }
 
             FinishTestItemRQ finishScenarioRq = new FinishTestItemRQ();
-
-            if (featureStartDate.containsKey(featureUri))
-            {
-                finishScenarioRq.setEndTime(new Date(scenarioResult.getEndTime() + featureStartDate.get(featureUri).getTime()));
-            }
-            else
-            {
-                finishScenarioRq.setEndTime(getTime());
-            }
-
+            finishScenarioRq.setEndTime(new Date(scenarioResult.getEndTime()));
             finishScenarioRq.setStatus(getScenarioStatus(scenarioResult));
 
             launch.get().finishTestItem(scenarioId, finishScenarioRq);
@@ -193,20 +174,27 @@ class RPReporter
         launch.get().finishTestItem(featureId, finishFeatureRq);
     }
 
-    private String getLaunchStatus(Results results)
+    private String getLaunchStatus(Suite suite)
     {
         String launchStatus = SKIPPED;
 
-        if (results.getScenarioCount() > 0)
+        try
         {
-            if (results.getFailCount() > 0)
+            Stream<FeatureResult> featureResults = suite.getFeatureResults();
+
+            if (featureResults.count() > 0)
             {
-                launchStatus = FAILED;
+                Long failedCount = featureResults
+                    .filter(s -> { return s.getScenarioCount() > 0; })
+                    .filter(s -> { return s.getFailedCount() > 0; })
+                    .collect(Collectors.counting());
+    
+                launchStatus = (failedCount > 0) ? FAILED : PASSED;
             }
-            else
-            {
-                launchStatus = PASSED;
-            }
+        }
+        catch(Exception e)
+        {
+            // do nothing
         }
 
         return launchStatus;
@@ -257,7 +245,7 @@ class RPReporter
 
     private String getUri(Feature feature)
     {
-        return feature.getResource().getPath().toString();
+        return feature.getResource().getRelativePath();
     }
 
     private void sendLog(final String message, final String level, final String itemUuid)

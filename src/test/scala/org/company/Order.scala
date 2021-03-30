@@ -10,7 +10,6 @@ import io.gatling.core.controller.inject.closed.ClosedInjectionStep
 import scala.Enumeration
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
-import scala.collection.mutable.MutableList
 
 
 class Order extends BaseSimulation {
