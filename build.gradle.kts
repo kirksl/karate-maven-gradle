@@ -58,21 +58,23 @@ dependencies {
     implementation("ch.qos.logback:logback-access:1.2.3")
     implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
     implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.8.7")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.1")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.12.1")
     implementation("net.logstash.logback:logstash-logback-encoder:4.9")
     implementation("org.slf4j:slf4j-api:1.7.18")
 
-    testImplementation("junit:junit:4.12")
+    testImplementation("junit:junit:4.13.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude(group = "org.junit.vintage", module = "junit-vintage-engine") }
     testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
-    testImplementation("com.intuit.karate:karate-mock-servlet:1.0.0")
-    testImplementation("com.intuit.karate:karate-junit5:1.0.0")
-    testImplementation("com.intuit.karate:karate-gatling:1.0.0")
+    testImplementation("com.intuit.karate:karate-mock-servlet:1.0.1")
+    testImplementation("com.intuit.karate:karate-junit5:1.0.1")
+    testImplementation("com.intuit.karate:karate-gatling:1.0.1")
 
     gatling("org.scala-lang:scala-library:2.13.3")
     gatling("io.gatling:gatling-app:3.4.0")
     gatling("io.gatling.highcharts:gatling-charts-highcharts:3.4.0")
-    gatling("com.intuit.karate:karate-gatling:1.0.0")
+    gatling("com.intuit.karate:karate-gatling:1.0.1")
 
     // Align versions of all Kotlin components, JDK8, Test Library, JUnit
     //implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

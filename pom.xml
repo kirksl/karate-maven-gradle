@@ -10,16 +10,16 @@
 	<description>karate-maven-gradle project</description>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 		<scala.version>2.13.3</scala.version>
-		<karate.version>1.0.0</karate.version>
+		<karate.version>1.0.1</karate.version>
 		<jacoco.plugin.version>0.8.4</jacoco.plugin.version>
 		<gatling.plugin.version>3.1.1</gatling.plugin.version>
 		<maven.surefire.version>2.22.2</maven.surefire.version>
 		<spring.boot.version>1.5.22.RELEASE</spring.boot.version>
 		<maven.compiler.version>3.6.0</maven.compiler.version>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -97,8 +97,20 @@
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.12.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.8.7</version>
+			<version>2.12.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.12.1</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -128,7 +140,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

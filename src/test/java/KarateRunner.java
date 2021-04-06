@@ -12,7 +12,7 @@ class KarateRunner
         String env = System.getProperty(Constants.KARATE_ENV, "dev").trim();
         Boolean rp = Boolean.parseBoolean(System.getProperty("reportportal", "false"));
 
-        Runner.Builder rb = Runner.builder();
+        var rb = Runner.builder();
         rb.path("classpath:org/company");
         rb.tags("~@ignore");
 

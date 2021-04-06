@@ -2,7 +2,7 @@ buildscript {
     ext {
         springBootVersion = '1.5.22.RELEASE'
         scalaVersion = '2.13.3'
-        karateVersion = '1.0.0'
+        karateVersion = '1.0.1'
         gatlingVersion = '3.4.0'
     }
 
@@ -55,11 +55,13 @@ dependencies {
     implementation("ch.qos.logback:logback-access:1.2.3")
     implementation("ch.qos.logback.contrib:logback-json-classic:0.1.5")
     implementation("ch.qos.logback.contrib:logback-jackson:0.1.5")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.8.7")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.12.1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.1")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.12.1")
     implementation("net.logstash.logback:logstash-logback-encoder:4.9")
     implementation("org.slf4j:slf4j-api:1.7.18")
 
-    testImplementation("junit:junit")
+    testImplementation("junit:junit:4.13.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test") { exclude group: 'org.junit.vintage', module: 'junit-vintage-engine' }
     testImplementation("com.epam.reportportal:logger-java-logback:5.0.1")
     testImplementation("com.intuit.karate:karate-mock-servlet:${karateVersion}")

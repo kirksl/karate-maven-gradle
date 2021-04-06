@@ -95,7 +95,8 @@ class RPReporter
     {
         featureStartDate.put(getUri(feature), getTime());
     }
-
+    
+    @SuppressWarnings({"unchecked", "rawtypes"})
     synchronized void finishFeature(FeatureResult featureResult)
     {
         Feature feature = featureResult.getFeature();
