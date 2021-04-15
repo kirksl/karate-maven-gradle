@@ -48,10 +48,15 @@ gradlew gatlingReport -DsimulationFolder=<folder path to **/gatling/[simulationF
 # report portal
 # this project was last tested with report portal version 5.3.3
 #
-# to enable:
+# to enable for karate 1.0:
 # - install report portal from https://reportportal.io/
 # - update /src/test/resources/reportportal.properties
 # - specify jvm arg "-Dreportportal=true" in above commands
+#
+# to enable for karate 0.9.6
+# - install report portal from https://reportportal.io/
+# - update /src/test/resources/reportportal.properties
+# - open /src/test/java/KarateRunner.java and uncomment: //.hook(new KarateHook())
 
 # karate report showing feature/scenario/step detail
 **/karate-reports/karate-summary.html
