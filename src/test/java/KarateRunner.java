@@ -10,7 +10,7 @@ class KarateRunner
     void testParallel()
     {
         String env = System.getProperty(Constants.KARATE_ENV, "dev").trim();
-        Boolean rp = Boolean.parseBoolean(System.getProperty("reportportal", "false"));
+        Boolean rp = Boolean.parseBoolean(System.getProperty("reportportal", "true"));
 
         var rb = Runner.builder();
         rb.path("classpath:org/company");
