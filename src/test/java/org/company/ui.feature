@@ -6,3 +6,4 @@ Scenario: ui 1
     * screenshot()
     * screenshot()
     * screenshot()
+    * assert 1 == 0

@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 
 public class KarateHook implements RuntimeHook
 {
-    //private RPReporter rpReporter;
+    private RPReporter rpReporter;
     private static final Logger logger = LoggerFactory.getLogger(KarateHook.class);
 
     public KarateHook()
     {
-        //this.rpReporter = new RPReporter();
+        this.rpReporter = new RPReporter();
     }
 
     @Override
@@ -33,7 +33,7 @@ public class KarateHook implements RuntimeHook
     {
         try
         {
-            //this.rpReporter.startFeature(fr.feature);
+            this.rpReporter.startFeature(fr.feature);
         }
         catch (Exception e)
         {
@@ -48,26 +48,7 @@ public class KarateHook implements RuntimeHook
     {
         try
         {
-            System.out.println("afterFeature -------------------------------------------------------------------");
-            fr.result.getScenarioResults().forEach(sr ->
-            {
-                System.out.println("Scenario: " + sr.getScenario().getName());
-                sr.getStepResults().forEach(r ->
-                {
-                    r.getEmbeds().forEach(e ->
-                    {
-                        System.out.println("Embedded File: " + e.getFile().getName());
-                    });
-                });
-                sr.getStepResultsNotHidden().forEach(rnh ->
-                {
-                    rnh.getEmbeds().forEach(e ->
-                    {
-                        System.out.println("Embedded File: " + e.getFile().getName());
-                    });
-                });
-            });
-            //this.rpReporter.finishFeature(fr.result);
+            this.rpReporter.finishFeature(fr.result);
         }
         catch (Exception e)
         {
@@ -80,7 +61,7 @@ public class KarateHook implements RuntimeHook
     {
         try
         {
-            //this.rpReporter.startLaunch();
+            this.rpReporter.startLaunch();
         }
         catch (Exception e)
         {
@@ -93,16 +74,7 @@ public class KarateHook implements RuntimeHook
     {
         try
         {
-            System.out.println("afterSuite -------------------------------------------------------------------");
-            suite.getFeatureResults().forEach(fr ->
-            {
-                System.out.println("Feature: " + fr.getDisplayName());
-                fr.getAllEmbedFiles().forEach(e ->
-                {
-                    System.out.println("Embedded File: " + e.getName());
-                });
-            });
-            //this.rpReporter.finishLaunch(suite);
+            this.rpReporter.finishLaunch(suite);
         }
         catch (Exception e)
         {
