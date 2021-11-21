@@ -141,22 +141,47 @@ class RPReporter
 
             Maybe<String> scenarioId = launch.get().startTestItem(featureId, startScenarioRq);
 
-            if (getScenarioStatus(scenarioResult) != PASSED)
-            {
-                List<Map<String, Map>> stepResultsToMap = (List<Map<String, Map>>) scenarioResult.toCucumberJson().get("steps");
-                
-                for (Map<String, Map> step : stepResultsToMap)
+             if (getScenarioStatus(scenarioResult) != PASSED)
+             {
+                List<Map<String, Map>> steps = (List<Map<String, Map>>) scenarioResult.toCucumberJson().get("steps");
+                for (Map<String, Map> step : steps)
                 {
+                    String stepName = "STEP: " + step.get("name");
                     Map stepResult = step.get("result");
                     String logLevel = PASSED.equals(stepResult.get("status")) ? INFO_LEVEL : ERROR_LEVEL;
-                    if (step.get("doc_string") != null)
+
+                    String stepDocString = "";
+                    if (step.containsKey("doc_string") && step.get("doc_string") != null)
                     {
-                        sendLog("STEP: " + step.get("name") +
-                                "\n-----------------DOC_STRING-----------------\n" + step.get("doc_string"), logLevel, scenarioId.blockingGet());
+                        stepDocString = "\n-----------------DOC_STRING-----------------\n" + step.get("doc_string");
+                    }
+
+                    if (step.containsKey("embeddings") && step.get("embeddings") != null)
+                    {
+                        ArrayList<HashMap<Object, Object>> embeddings = (ArrayList<HashMap<Object, Object>>) step.get("embeddings");
+                        for (int i = 0; i < embeddings.size(); i++)
+                        {
+                            try
+                            {
+                                String message = stepName + " Screenshot " + (i + 1) + stepDocString;
+                                HashMap<Object, Object> embed = embeddings.get(i);
+                                SaveLogRQ.File rpFile = new SaveLogRQ.File();
+                                rpFile.setName(String.valueOf(step.get("name")) + "_" + String.valueOf(i));
+                                rpFile.setContentType((String) embed.get("mime_type"));
+                                rpFile.setContent(java.util.Base64.getDecoder().decode(embed.get("data").toString()));
+                            
+                                sendLog(message, logLevel, scenarioId.blockingGet(), rpFile);
+                            }
+                            catch (Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     else
                     {
-                        sendLog("STEP: " + step.get("name"), logLevel, scenarioId.blockingGet());
+                        String message = stepName + stepDocString;
+                        sendLog(message, logLevel, scenarioId.blockingGet(), null);
                     }
                 }
             }
@@ -167,7 +192,6 @@ class RPReporter
 
             launch.get().finishTestItem(scenarioId, finishScenarioRq);
         }
-
         FinishTestItemRQ finishFeatureRq = new FinishTestItemRQ();
         finishFeatureRq.setEndTime(getTime());
         finishFeatureRq.setStatus(getFeatureStatus(featureResult));
@@ -249,7 +273,7 @@ class RPReporter
         return feature.getResource().getRelativePath();
     }
 
-    private void sendLog(final String message, final String level, final String itemUuid)
+    private void sendLog(final String message, final String level, final String itemUuid, final SaveLogRQ.File file)
     {
         ReportPortal.emitLog(itemId ->
         {
@@ -260,6 +284,11 @@ class RPReporter
             saveLogRq.setItemUuid(itemUuid);   // rp >= v5
             saveLogRq.setLevel(level);
             saveLogRq.setLogTime(getTime());
+            
+            if (file != null)
+            {
+                saveLogRq.setFile(file);
+            }
 
             return saveLogRq;
         });
