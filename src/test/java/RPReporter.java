@@ -86,29 +86,29 @@ class RPReporter
 
     void finishLaunch(Suite suite)
     {
-		try
-		{
-			Results.of(suite);
-			File reportDir = new File(suite.reportDir);
-			File[] files = reportDir.listFiles();
-			for (File f : files)
-			{
-				if (f.isFile() && f.getAbsolutePath().endsWith("karate-timeline.html"))
-				{
-					sendLaunchLog(f.getName(), INFO_LEVEL, getTime(), f);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+        try
+        {
+            Results.of(suite);
+            File reportDir = new File(suite.reportDir);
+            File[] files = reportDir.listFiles();
+            for (File f : files)
+            {
+                if (f.isFile() && f.getAbsolutePath().endsWith("karate-timeline.html"))
+                {
+                    sendLaunchLog(f.getName(), INFO_LEVEL, getTime(), f);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
 
         FinishExecutionRQ finishLaunchRq = new FinishExecutionRQ();
         finishLaunchRq.setEndTime(getTime());
         finishLaunchRq.setStatus(getLaunchStatus(suite));
 
-		this.launch.get().finish(finishLaunchRq);
+        this.launch.get().finish(finishLaunchRq);
     }
 
     synchronized void startFeature(Feature feature)
@@ -314,15 +314,15 @@ class RPReporter
         });
     }
 
-	private void sendLaunchLog(final String message, final String level, final Date time, final File file)
-	{
-		if (file != null)
-		{
-			ReportPortal.emitLaunchLog(message, level, time, file);
-		}
-		else
-		{
-			ReportPortal.emitLaunchLog(message, level, time);
-		}
-	}
+    private void sendLaunchLog(final String message, final String level, final Date time, final File file)
+    {
+        if (file != null)
+        {
+            ReportPortal.emitLaunchLog(message, level, time, file);
+        }
+        else
+        {
+            ReportPortal.emitLaunchLog(message, level, time);
+        }
+    }
 }
