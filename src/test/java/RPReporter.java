@@ -7,12 +7,14 @@ import com.epam.ta.reportportal.ws.model.FinishTestItemRQ;
 import com.epam.ta.reportportal.ws.model.StartTestItemRQ;
 import com.epam.ta.reportportal.ws.model.launch.StartLaunchRQ;
 import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
+import com.intuit.karate.Results;
 import com.intuit.karate.Suite;
 import com.intuit.karate.core.*;
 import io.reactivex.Maybe;
 import rp.com.google.common.base.Supplier;
 import rp.com.google.common.base.Suppliers;
 import rp.com.google.common.base.Strings;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -84,11 +86,29 @@ class RPReporter
 
     void finishLaunch(Suite suite)
     {
+        try
+        {
+            Results.of(suite);
+            File reportDir = new File(suite.reportDir);
+            File[] files = reportDir.listFiles();
+            for (File f : files)
+            {
+                if (f.isFile() && f.getAbsolutePath().endsWith("karate-timeline.html"))
+                {
+                    sendLaunchLog(f.getName(), INFO_LEVEL, getTime(), f);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
         FinishExecutionRQ finishLaunchRq = new FinishExecutionRQ();
         finishLaunchRq.setEndTime(getTime());
         finishLaunchRq.setStatus(getLaunchStatus(suite));
 
-        launch.get().finish(finishLaunchRq);
+        this.launch.get().finish(finishLaunchRq);
     }
 
     synchronized void startFeature(Feature feature)
@@ -292,5 +312,17 @@ class RPReporter
 
             return saveLogRq;
         });
+    }
+
+    private void sendLaunchLog(final String message, final String level, final Date time, final File file)
+    {
+        if (file != null)
+        {
+            ReportPortal.emitLaunchLog(message, level, time, file);
+        }
+        else
+        {
+            ReportPortal.emitLaunchLog(message, level, time);
+        }
     }
 }
