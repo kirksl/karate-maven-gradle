@@ -1,5 +1,16 @@
 {
     "karateRunner.karateRunner.default": "KarateRunner",
     "karateRunner.buildSystem.useWrapper": true,
-    "karateRunner.karateRunner.promptToSpecify": false
+    "karateRunner.karateRunner.promptToSpecify": false,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "": true,
+        ".mule": true
+    },
+    "extension.prophet.sitecontext.selectedSiteID": ""
 }
